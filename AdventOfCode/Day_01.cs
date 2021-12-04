@@ -13,7 +13,8 @@ namespace AdventOfCode
 
         public override ValueTask<string> Solve_1() => CountIncrementingDepthMeasuresAsync(_inputNumbers);
 
-        public override ValueTask<string> Solve_2() => new($"Solution to {ClassPrefix} {CalculateIndex()}, part 2");
+        public override ValueTask<string> Solve_2() =>
+            CountIncrementingDepthMeasuresAsync(CreateThreeMeasurementSlidingWindows(_inputNumbers).ToList());
 
         private ValueTask<string> CountIncrementingDepthMeasuresAsync(List<int> allMeasures)
             => new(CountIncrementingDepthMeasures(allMeasures).ToString());
@@ -31,6 +32,14 @@ namespace AdventOfCode
             }
 
             return count;
+        }
+
+        private IEnumerable<int> CreateThreeMeasurementSlidingWindows(List<int> initialMeasures)
+        {
+            for(var i = 0; i < initialMeasures.Count - 2; i++)
+            {
+                yield return initialMeasures.Skip(i).Take(3).Sum();
+            }
         }
     }
 }
