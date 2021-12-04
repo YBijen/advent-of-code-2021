@@ -18,14 +18,14 @@ namespace AdventOfCode
 
         public override ValueTask<string> Solve_1() => new(CalculcateFinalPosition(_instructions).ToString());
 
-        public override ValueTask<string> Solve_2() => new("");
+        public override ValueTask<string> Solve_2() => new(CalculcateFinalPositionAndAim(_instructions).ToString());
 
         private int CalculcateFinalPosition(List<(Direction direction, int units)> directionInstructions)
         {
             (int x, int y) position = (0, 0);
-            foreach(var instruction in directionInstructions)
+            foreach (var instruction in directionInstructions)
             {
-                switch(instruction.direction)
+                switch (instruction.direction)
                 {
                     case Direction.Forward:
                         position.x += instruction.units;
@@ -42,6 +42,31 @@ namespace AdventOfCode
             }
 
             return position.x * position.y;
+        }
+
+        private long CalculcateFinalPositionAndAim(List<(Direction direction, int units)> directionInstructions)
+        {
+            (long x, long y, long aim) positionAndAim = (0, 0, 0);
+            foreach (var instruction in directionInstructions)
+            {
+                switch (instruction.direction)
+                {
+                    case Direction.Forward:
+                        positionAndAim.x += instruction.units;
+                        positionAndAim.y += positionAndAim.aim * instruction.units;
+                        break;
+                    case Direction.Up:
+                        positionAndAim.aim -= instruction.units;
+                        break;
+                    case Direction.Down:
+                        positionAndAim.aim += instruction.units;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return positionAndAim.x * positionAndAim.y;
         }
     }
 
