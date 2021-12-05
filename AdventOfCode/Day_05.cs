@@ -11,24 +11,24 @@ namespace AdventOfCode
             _linesOfVents = File.ReadAllLines(InputFilePath).ToList();
         }
 
-        public override ValueTask<string> Solve_1() => new(CountAmountOfOverlapHorizontalAndVerticalLineSegments(_linesOfVents).ToString());
+        public override ValueTask<string> Solve_1() => new(CountAmountOfOverlapLineSegments(_linesOfVents, false).ToString());
 
-        public override ValueTask<string> Solve_2() => new("Answer for Part 2 will be here...");
+        public override ValueTask<string> Solve_2() => new(CountAmountOfOverlapLineSegments(_linesOfVents, true).ToString());
 
-        private int CountAmountOfOverlapHorizontalAndVerticalLineSegments(List<string> linesOfVents)
+        private int CountAmountOfOverlapLineSegments(List<string> linesOfVents, bool includeDiagonal)
         {
-            var mapping = CreateMapOfOverlapHorizontalAndVerticalLineSegments(linesOfVents);
+            var mapping = CreateMapOfOverlapLineSegments(linesOfVents, includeDiagonal);
             return mapping.Values.Count(position => position >= 2);
         }
 
-        private Dictionary<(int x, int y), int> CreateMapOfOverlapHorizontalAndVerticalLineSegments(List<string> linesOfVents)
+        private Dictionary<(int x, int y), int> CreateMapOfOverlapLineSegments(List<string> linesOfVents, bool includeDiagonal)
         {
             var touchedPositions = new Dictionary<(int x, int y), int>();
 
             foreach(var line in linesOfVents)
             {
                 var convertedLine = ConvertLineOfVents(line);
-                foreach(var position in GetAllLinePositions(convertedLine.from, convertedLine.to))
+                foreach(var position in GetAllLinePositions(convertedLine.from, convertedLine.to, includeDiagonal))
                 {
                     if (touchedPositions.ContainsKey(position))
                     {
@@ -44,7 +44,7 @@ namespace AdventOfCode
             return touchedPositions;
         }
 
-        private IEnumerable<(int x, int y)> GetAllLinePositions((int x, int y) from, (int x, int y) to)
+        private IEnumerable<(int x, int y)> GetAllLinePositions((int x, int y) from, (int x, int y) to, bool includeDiagonal)
         {
             if (from.x == to.x)
             {
@@ -62,6 +62,34 @@ namespace AdventOfCode
                 for (var i = smallerValue; i <= biggerValue; i++)
                 {
                     yield return (i, from.y);
+                }
+            }
+            else if(includeDiagonal)
+            {
+                // Return the starting value
+                yield return from;
+
+                while (from != to)
+                {
+                    if(from.x > to.x)
+                    {
+                        from.x--;
+                    }
+                    else
+                    {
+                        from.x++;
+                    }
+
+                    if(from.y > to.y)
+                    {
+                        from.y--;
+                    }
+                    else
+                    {
+                        from.y++;
+                    }
+
+                    yield return from;
                 }
             }
         }
