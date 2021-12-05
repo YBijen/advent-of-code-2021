@@ -37,21 +37,35 @@ namespace AdventOfCode
             }
         }
 
-        public override ValueTask<string> Solve_1() => new(PlayBingo().ToString());
+        public override ValueTask<string> Solve_1() => new(PlayBingo(_bingoCards.ToList()).ToString());
 
-        public override ValueTask<string> Solve_2() => new("Answer for Part 2 will be here...");
+        public override ValueTask<string> Solve_2() => new(PlayAllBingoCards(_bingoCards.ToList()).ToString());
 
-        private long PlayBingo()
+        private long PlayAllBingoCards(List<Dictionary<int, (int x, int y)>> bingoCards)
         {
-            while(_drawnNumbers.Count > 0)
+            var drawnNumber = 0;
+            while (bingoCards.Count > 1)
+            {
+                drawnNumber = _drawnNumbers.Dequeue();
+                MarkNumber(bingoCards, drawnNumber);
+
+                bingoCards = bingoCards.Where(card => !HasBingoCardWon(card)).ToList();
+            }
+
+            // Continue to play Bingo with the last card till its done
+            return PlayBingo(bingoCards);
+        }
+
+        private long PlayBingo(List<Dictionary<int, (int x, int y)>> bingoCards)
+        {
+            while (_drawnNumbers.Count > 0)
             {
                 var drawnNumber = _drawnNumbers.Dequeue();
+                MarkNumber(bingoCards, drawnNumber);
 
-                MarkNumber(drawnNumber);
-
-                foreach(var bingoCard in _bingoCards)
+                foreach (var bingoCard in bingoCards)
                 {
-                    if(HasBingoCardWon(bingoCard))
+                    if (HasBingoCardWon(bingoCard))
                     {
                         return bingoCard.Keys.Sum() * drawnNumber;
                     }
@@ -73,9 +87,9 @@ namespace AdventOfCode
             return false;
         }
 
-        private void MarkNumber(int number)
+        private void MarkNumber(List<Dictionary<int, (int x, int y)>> bingoCards, int number)
         {
-            foreach(var card in _bingoCards)
+            foreach(var card in bingoCards)
             {
                 if(card.ContainsKey(number))
                 {
