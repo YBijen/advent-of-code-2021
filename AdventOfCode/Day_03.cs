@@ -9,11 +9,12 @@ namespace AdventOfCode
         public Day_03()
         {
             _diagnosticReport = File.ReadAllLines(InputFilePath).ToList();
+            CalculateLifeSupportRating(_diagnosticReport);
         }
 
         public override ValueTask<string> Solve_1() => new(CalculatePowerConsumption(_diagnosticReport).ToString());
 
-        public override ValueTask<string> Solve_2() => new("Answer for Solve_2 will be here");
+        public override ValueTask<string> Solve_2() => new(CalculateLifeSupportRating(_diagnosticReport).ToString());
 
         private long CalculatePowerConsumption(List<string> diagnosticReport)
         {
@@ -35,7 +36,63 @@ namespace AdventOfCode
                 epsilonRateString += isBit0MostCommon ? "1" : "0";
             }
 
-            return (Convert.ToInt64(gammaRateString, 2), Convert.ToInt64(epsilonRateString, 2));
+            return (ConvertBitStringToLong(gammaRateString), ConvertBitStringToLong(epsilonRateString));
+        }
+
+        private long CalculateLifeSupportRating(List<string> diagnosticReport)
+        {
+            var oxygenGeneratorRating = CalculateRating(diagnosticReport.ToList(), true);
+            var co2ScrubberRating = CalculateRating(diagnosticReport.ToList(), false);
+
+            return oxygenGeneratorRating * co2ScrubberRating;
+        }
+
+        private long CalculateRating(List<string> diagnosticReport, bool keepMostBits)
+        {
+            var oxygenGeneratorRating = diagnosticReport.ToList();
+
+            for (var i = 0; i < diagnosticReport[0].Length; i++)
+            {
+                if(oxygenGeneratorRating.Count == 1)
+                {
+                    break;
+                }
+
+                var allBitsOnPosition = GetAllBitsOnPosition(oxygenGeneratorRating, i);
+                oxygenGeneratorRating = CountBits(allBitsOnPosition) switch
+                {
+                    BitCountResult.MoreBit0 => oxygenGeneratorRating.Where(line => line[i] == (keepMostBits ? '0' : '1')).ToList(),
+                    BitCountResult.MoreBit1 or BitCountResult.Equal => oxygenGeneratorRating.Where(line => line[i] == (keepMostBits ? '1' : '0')).ToList(),
+                    _ => throw new NotImplementedException()
+                };
+            }
+
+            return ConvertBitStringToLong(oxygenGeneratorRating.First());
+        }
+
+        private BitCountResult CountBits(string line)
+        {
+            var countBit0 = 0;
+            var countBit1 = 0;
+
+            for(var i = 0; i < line.Length; i++)
+            {
+                if(line[i] == '0')
+                {
+                    countBit0++;
+                }
+                else
+                {
+                    countBit1++;
+                }
+            }
+
+            if(countBit0 == countBit1)
+            {
+                return BitCountResult.Equal;
+            }
+
+            return countBit0 > countBit1 ? BitCountResult.MoreBit0 : BitCountResult.MoreBit1;
         }
 
         /// <summary>
@@ -48,8 +105,20 @@ namespace AdventOfCode
         {
             for(var i = 0; i < diagnosticReport[0].Length; i++)
             {
-                yield return string.Join("", diagnosticReport.Select(line => line[i]));
+                yield return GetAllBitsOnPosition(diagnosticReport, i);
             }
+        }
+
+        private long ConvertBitStringToLong(string bitString) => Convert.ToInt64(bitString, 2);
+
+        private string GetAllBitsOnPosition(List<string> diagnosticReport, int position)
+            => string.Join("", diagnosticReport.Select(line => line[position]));
+
+        private enum BitCountResult
+        {
+            Equal,
+            MoreBit0,
+            MoreBit1
         }
     }
 }
