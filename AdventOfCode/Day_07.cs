@@ -9,17 +9,31 @@ namespace AdventOfCode
         public Day_07()
         {
             _horizontalPositions = File.ReadAllText(InputFilePath).Split(',').Select(value => int.Parse(value)).ToList();
-
-            Console.WriteLine("Max: " + _horizontalPositions.Max());
         }
 
         public override ValueTask<string> Solve_1() => new(CalculcateFuelToPosition(_horizontalPositions, FindMedian(_horizontalPositions)).ToString());
 
-        public override ValueTask<string> Solve_2() => new("Answer for Part 2 will be here...");
+        public override ValueTask<string> Solve_2() => new(CalculcateComplexFuelToPosition(_horizontalPositions, FindAverage(_horizontalPositions)).ToString());
+
+        private int CalculcateComplexFuelToPosition(List<int> horizontalPositions, int targetPosition) => horizontalPositions
+            .Select(position => CalculateFuelFromPosition(position, targetPosition))
+            .Sum();
+
+        private int CalculateFuelFromPosition(int position, int targetPosition)
+        {
+            double stepsToTake = (position > targetPosition)
+                    ? position - targetPosition
+                    : targetPosition - position;
+
+            var multiplier = (stepsToTake / 2) + 0.5;
+            return (int)(multiplier * stepsToTake);
+        }
 
         private int CalculcateFuelToPosition(List<int> horizontalPositions, int targetPosition) => horizontalPositions
             .Select(position => (position > targetPosition) ? (position - targetPosition) : (targetPosition - position))
             .Sum();
+
+        private int FindAverage(List<int> horizontalPositions) => (int)horizontalPositions.Average();
 
         private int FindMedian(List<int> horizontalPositions)
         {
