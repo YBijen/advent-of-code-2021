@@ -9,7 +9,6 @@ namespace AdventOfCode
         public Day_08()
         {
             _input = File.ReadAllText(InputFilePath);
-            //_input = "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf";
         }
 
         public override ValueTask<string> Solve_1() => new(CountUniqueDigits(GetOutputSegments(_input)).ToString());
@@ -32,19 +31,21 @@ namespace AdventOfCode
 
             var decoding = DecodeSignalPatterns(input);
 
-            var result = "";
+            var decodedResult = string.Empty;
+
             foreach(var output in outputValues)
             {
                 foreach(var decodeKvp in decoding.Where(kvp => kvp.Value.Length == output.Length))
                 {
                     if(output.All(c => decodeKvp.Value.Contains(c)))
                     {
-                        result+= decodeKvp.Key.ToString();
+                        decodedResult += decodeKvp.Key.ToString();
                         continue;
                     }
                 }
             }
-            return int.Parse(result);
+
+            return int.Parse(decodedResult);
         }
 
         private Dictionary<int, string> DecodeSignalPatterns(string input)
