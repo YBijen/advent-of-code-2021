@@ -29,9 +29,9 @@ namespace AdventOfCode
             GetAllCorruptedLineCharacters(navigationSubystem).Sum(c => _illegalCharactersPrice[c]);
 
         private IEnumerable<char> GetAllCorruptedLineCharacters(List<string> navigationSubsystem) =>
-            navigationSubsystem.Select(line => FindIllegalCharacter(line)).Where(c => c != EmptyChar);
+            navigationSubsystem.Select(line => ProcessLine(line)).Where(result => result.IsCorrupted).Select(result => result.CorruptedCharacter);
 
-        private char FindIllegalCharacter(string line)
+        private LineResult ProcessLine(string line)
         {
             var stack = new Stack<char>();
             foreach (var character in line)
@@ -42,15 +42,35 @@ namespace AdventOfCode
                 }
                 else if (!IsChunkCloseCharacter(stack.Pop(), character))
                 {
-                    return character;
+                    return new LineResult(line, true, character);
                 }
             }
-            return EmptyChar;
+            return new LineResult(line, false);
         }
 
         private static bool IsChunkCloseCharacter(char lastChunkOpenCharacter, char currentChar) => (lastChunkOpenCharacter == '(' && currentChar == ')')
             || (lastChunkOpenCharacter == '[' && currentChar == ']')
             || (lastChunkOpenCharacter == '{' && currentChar == '}')
             || (lastChunkOpenCharacter == '<' && currentChar == '>');
+
+        private class LineResult
+        {
+            public LineResult(string line, bool isCorrupted)
+            {
+                Line = line;
+                IsCorrupted = isCorrupted;
+            }
+
+            public LineResult(string line, bool isCorrupted, char corruptedCharacter)
+            {
+                Line = line;
+                IsCorrupted = isCorrupted;
+                CorruptedCharacter = corruptedCharacter;
+            }
+
+            public string Line { get; set; }
+            public bool IsCorrupted { get; set; }
+            public char CorruptedCharacter { get; set; }
+        }
     }
 }
