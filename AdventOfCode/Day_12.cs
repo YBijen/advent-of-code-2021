@@ -15,36 +15,60 @@ namespace AdventOfCode
             _allCaves = GetAllCaves(_input);
         }
 
-        public override ValueTask<string> Solve_1() => new(TraverseAllCaves(GetStartingCave(_allCaves)).Count.ToString());
-
-        public override ValueTask<string> Solve_2() => new("Answer for Part 2 will be here...");
+        public override ValueTask<string> Solve_1() => new(TraverseAllCaves(GetStartingCave(_allCaves), false).Count.ToString());
+        public override ValueTask<string> Solve_2() => new(TraverseAllCaves(GetStartingCave(_allCaves), true).Count.ToString());
 
         private Cave GetStartingCave(List<Cave> allCaves) => allCaves.Find(c => c.Name == CaveStart);
-        private List<string> TraverseAllCaves(Cave startingCave)
+        private List<string> TraverseAllCaves(Cave startingCave, bool allowRevisitAnySmallCaveOnce)
         {
             var validCaveRoutes = new List<string>();
-            TraverseAllPaths(startingCave.Name + ",", startingCave.ConnectedCaves, validCaveRoutes);
+            if(allowRevisitAnySmallCaveOnce)
+            {
+                TraverseAllPaths(startingCave.Name + ",", startingCave.ConnectedCaves, false, validCaveRoutes);
+            }
+            else
+            {
+                TraverseAllPaths(startingCave.Name + ",", startingCave.ConnectedCaves, validCaveRoutes);
+            }
             return validCaveRoutes;
         }
         private void TraverseAllPaths(string currentPath, List<Cave> possibleCaves, List<string> validCaveRoutes)
         {
-            foreach(var cave in possibleCaves)
+            foreach (var cave in possibleCaves)
             {
-                if(cave.Name == CaveStart)
+                if (cave.Name == CaveStart)
                 {
                     continue;
                 }
-                else if(cave.Name == CaveEnd)
+                else if (cave.Name == CaveEnd)
                 {
                     validCaveRoutes.Add(currentPath + cave.Name);
                 }
-                else if(!currentPath.Contains(cave.Name))
+                else if (!currentPath.Contains(cave.Name) || IsBigCave(cave.Name))
                 {
                     TraverseAllPaths(currentPath + cave.Name + ",", cave.ConnectedCaves, validCaveRoutes);
                 }
-                else if(IsBigCave(cave.Name))
+            }
+        }
+        private void TraverseAllPaths(string currentPath, List<Cave> possibleCaves, bool hasRevisitedAnySmallCave, List<string> validCaveRoutes)
+        {
+            foreach (var cave in possibleCaves)
+            {
+                if (cave.Name == CaveStart)
                 {
-                    TraverseAllPaths(currentPath + cave.Name + ",", cave.ConnectedCaves, validCaveRoutes);
+                    continue;
+                }
+                else if (cave.Name == CaveEnd)
+                {
+                    validCaveRoutes.Add(currentPath + cave.Name);
+                }
+                else if (!currentPath.Contains(cave.Name) || IsBigCave(cave.Name))
+                {
+                    TraverseAllPaths(currentPath + cave.Name + ",", cave.ConnectedCaves, hasRevisitedAnySmallCave, validCaveRoutes);
+                }
+                else if(!hasRevisitedAnySmallCave)
+                {
+                    TraverseAllPaths(currentPath + cave.Name + ",", cave.ConnectedCaves, true, validCaveRoutes);
                 }
             }
         }
