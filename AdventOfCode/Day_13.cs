@@ -1,4 +1,5 @@
 ﻿using AoCHelper;
+using System.Text;
 
 namespace AdventOfCode
 {
@@ -10,18 +11,37 @@ namespace AdventOfCode
             _input = File.ReadAllText(InputFilePath);
         }
 
-        public override ValueTask<string> Solve_1() => new(CalculateAmountOfDotsLeftAfterSingleFold(_input).ToString());
+        public override ValueTask<string> Solve_1() => new(CalculateAmountOfDotsLeftAfterSingleFold().ToString());
 
-        public override ValueTask<string> Solve_2() => new("Answer for Part 2 will be here...");
+        public override ValueTask<string> Solve_2() => new(CreatePaperFromCoordinates(PerformAllFolds()));
 
-        private int CalculateAmountOfDotsLeftAfterSingleFold(string input)
+        private HashSet<(int x, int y)> PerformAllFolds()
         {
-            var (dotCoodrinates, foldQueue) = ParseInput(_input);
+            var (dotCoordinates, foldQueue) = ParseInput(_input);
+            while(foldQueue.Count > 0)
+            {
+                var (axis, position) = foldQueue.Dequeue();
+                if(axis == 'x')
+                {
+                    dotCoordinates = FoldXAxis(dotCoordinates, position);
+                }
+                else
+                {
+                    dotCoordinates = FoldYAxis(dotCoordinates, position);
+                }
+            }
+
+            return dotCoordinates;
+        }
+
+        private int CalculateAmountOfDotsLeftAfterSingleFold()
+        {
+            var (dotCoordinates, foldQueue) = ParseInput(_input);
             var (axis, position) = foldQueue.Dequeue();
 
             return axis == 'x'
-                ? FoldXAxis(dotCoodrinates, position).Count
-                : FoldYAxis(dotCoodrinates, position).Count;
+                ? FoldXAxis(dotCoordinates, position).Count
+                : FoldYAxis(dotCoordinates, position).Count;
         }
 
         private HashSet<(int x, int y)> FoldXAxis(HashSet<(int x, int y)> dotCoordinates, int foldPosition)
@@ -60,21 +80,26 @@ namespace AdventOfCode
             return foldedCoordinates;
         }
 
-        private void PrintPaper(HashSet<(int x, int y)> coords, string header)
+        private string CreatePaperFromCoordinates(HashSet<(int x, int y)> coordinates)
         {
-            if(!string.IsNullOrEmpty(header))
+            var paper = new StringBuilder();
+            for(int y = 0; y <= coordinates.Max(c => c.y); y++)
             {
-                Console.WriteLine(header);
+                for(int x = 0; x <= coordinates.Max(c => c.x); x++)
+                {
+                    if(coordinates.Contains((x, y)))
+                    {
+                        paper.Append('#');
+                    }
+                    else
+                    {
+                        paper.Append('.');
+                    }
+                }
+                paper.AppendLine();
             }
 
-            for(int y = 0; y <= coords.Max(c => c.y); y++)
-            {
-                for(int x = 0; x <= coords.Max(c => c.x); x++)
-                {
-                    Console.Write(coords.FirstOrDefault(c => c.y == y && c.x == x) != default ? "#" : ".");
-                }
-                Console.WriteLine();
-            }
+            return paper.ToString();
         }
 
         private (HashSet<(int x, int y)> dotCoords, Queue<(char axis, int position)> foldsQueue) ParseInput(string input)
