@@ -50,7 +50,7 @@ namespace AdventOfCode
             return currentIndex;
         }
 
-        private long ParsePackage(string package, long totalVersionNumber)
+        public long ParsePackage(string package, long totalVersionNumber)
         {
             if(package.Length < MinimumPackageLength)
             {
@@ -83,7 +83,7 @@ namespace AdventOfCode
 
         private long ConvertToLong(string bitString) => Convert.ToInt64(bitString, 2);
 
-        private string ConvertToBitString(string hexValue)
+        public string ConvertToBitString(string hexValue)
         {
             var bitString = new StringBuilder();
             foreach(var c in hexValue)
