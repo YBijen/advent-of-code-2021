@@ -20,45 +20,45 @@ namespace AdventOfCode.Tests
         }
 
         [TestMethod]
-        public void Day16_ParsePackage_Example1_Success()
+        public void Day16_ParsePackageForVersionNumbers_Example1_Success()
         {
-            Assert.AreEqual(6, _day16.ParsePackage(_day16.ConvertToBitString("D2FE28"), 0));
+            Assert.AreEqual(6, _day16.ParsePackageForVersionNumbers(_day16.ConvertToBitString("D2FE28"), 0));
         }
 
         [TestMethod]
-        public void Day16_ParsePackage_Example2_Success()
+        public void Day16_ParsePackageForVersionNumbers_Example2_Success()
         {
-            Assert.AreEqual(9, _day16.ParsePackage(_day16.ConvertToBitString("38006F45291200"), 0));
+            Assert.AreEqual(9, _day16.ParsePackageForVersionNumbers(_day16.ConvertToBitString("38006F45291200"), 0));
         }
 
         [TestMethod]
-        public void Day16_ParsePackage_Example3_Success()
+        public void Day16_ParsePackageForVersionNumbers_Example3_Success()
         {
-            Assert.AreEqual(14, _day16.ParsePackage(_day16.ConvertToBitString("EE00D40C823060"), 0));
+            Assert.AreEqual(14, _day16.ParsePackageForVersionNumbers(_day16.ConvertToBitString("EE00D40C823060"), 0));
         }
 
         [TestMethod]
-        public void Day16_ParsePackage_Example4_Success()
+        public void Day16_ParsePackageForVersionNumbers_Example4_Success()
         {
-            Assert.AreEqual(16, _day16.ParsePackage(_day16.ConvertToBitString("8A004A801A8002F478"), 0));
+            Assert.AreEqual(16, _day16.ParsePackageForVersionNumbers(_day16.ConvertToBitString("8A004A801A8002F478"), 0));
         }
 
         [TestMethod]
-        public void Day16_ParsePackage_Example5_Success()
+        public void Day16_ParsePackageForVersionNumbers_Example5_Success()
         {
-            Assert.AreEqual(12, _day16.ParsePackage(_day16.ConvertToBitString("620080001611562C8802118E34"), 0));
+            Assert.AreEqual(12, _day16.ParsePackageForVersionNumbers(_day16.ConvertToBitString("620080001611562C8802118E34"), 0));
         }
 
         [TestMethod]
-        public void Day16_ParsePackage_Example6_Success()
+        public void Day16_ParsePackageForVersionNumbers_Example6_Success()
         {
-            Assert.AreEqual(23, _day16.ParsePackage(_day16.ConvertToBitString("C0015000016115A2E0802F182340"), 0));
+            Assert.AreEqual(23, _day16.ParsePackageForVersionNumbers(_day16.ConvertToBitString("C0015000016115A2E0802F182340"), 0));
         }
 
         [TestMethod]
-        public void Day16_ParsePackage_Example7_Success()
+        public void Day16_ParsePackageForVersionNumbers_Example7_Success()
         {
-            Assert.AreEqual(31, _day16.ParsePackage(_day16.ConvertToBitString("A0016C880162017C3686B18A3D4780"), 0));
+            Assert.AreEqual(31, _day16.ParsePackageForVersionNumbers(_day16.ConvertToBitString("A0016C880162017C3686B18A3D4780"), 0));
         }
     }
 }

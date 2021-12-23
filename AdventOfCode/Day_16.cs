@@ -25,7 +25,7 @@ namespace AdventOfCode
             _input = File.ReadAllText(InputFilePath);
         }
 
-        public override ValueTask<string> Solve_1() => new(ParsePackage(ConvertToBitString(_input), 0).ToString());
+        public override ValueTask<string> Solve_1() => new(ParsePackageForVersionNumbers(ConvertToBitString(_input), 0).ToString());
 
         public override ValueTask<string> Solve_2() => new("Answer for Part 2 will be here...");
 
@@ -50,7 +50,7 @@ namespace AdventOfCode
             return currentIndex;
         }
 
-        public long ParsePackage(string package, long totalVersionNumber)
+        public long ParsePackageForVersionNumbers(string package, long totalVersionNumber)
         {
             if(package.Length < MinimumPackageLength)
             {
@@ -63,7 +63,7 @@ namespace AdventOfCode
             if(typeId == TypeIdLiteralValue)
             {
                 var afterProcessingIndex = ProcessLiteralPackage(package);
-                return ParsePackage(package[afterProcessingIndex..], totalVersionNumber);
+                return ParsePackageForVersionNumbers(package[afterProcessingIndex..], totalVersionNumber);
             }
             else
             {
@@ -71,12 +71,12 @@ namespace AdventOfCode
                 if(lengthTypeId == '0')
                 {
                     var lengthOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, GroupSizeLengthOfSubPackages));
-                    return ParsePackage(package[(GroupSizeLengthOfSubPackages + AfterHeaderIndex + 1)..], totalVersionNumber);
+                    return ParsePackageForVersionNumbers(package[(GroupSizeLengthOfSubPackages + AfterHeaderIndex + 1)..], totalVersionNumber);
                 }
                 else
                 {
                     var amountOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, GroupSizeAmountOfSubPackages));
-                    return ParsePackage(package[(GroupSizeAmountOfSubPackages + AfterHeaderIndex + 1)..], totalVersionNumber);
+                    return ParsePackageForVersionNumbers(package[(GroupSizeAmountOfSubPackages + AfterHeaderIndex + 1)..], totalVersionNumber);
                 }
             }
         }
