@@ -29,6 +29,8 @@ namespace AdventOfCode
         public Day_16()
         {
             _input = File.ReadAllText(InputFilePath);
+            var x = ParsePackageV2(ConvertToBitString(_input));
+            Console.WriteLine("Result: " + x.resultValue);
         }
 
         public override ValueTask<string> Solve_1() => new(ParsePackageForVersionNumbers(ConvertToBitString(_input), 0).ToString());
@@ -37,69 +39,71 @@ namespace AdventOfCode
 
         public long ParsePackageAndCalculateResult(string package)
         {
-            var resultList = new List<(Operator op, List<long> values)>();
-            ParsePackage(package, Operator.None, resultList);
-            resultList.Reverse();
+            var subPackageResultList = new List<long>();
+
+            //var subPackageResultList = new List<(Operator op, List<long> results)>();
+            var zz = ParsePackage(package, Operator.None, subPackageResultList);
+            //resultList.Reverse();
 
             var totalResultList = new List<long>();
-            foreach (var (op, results) in resultList)
-            {
-                switch (op)
-                {
-                    case Operator.Sum:
-                        if(results.Count == 0) ClearAndAddToList(totalResultList, totalResultList.Sum());
-                        else totalResultList.Add(results.Sum());
-                        break;
-                    case Operator.Product:
-                        if (results.Count == 0) ClearAndAddToList(totalResultList, totalResultList.Aggregate(1L, (a, b) => a * b));
-                        else totalResultList.Add(results.Aggregate(1L, (a, b) => a * b));
-                        break;
-                    case Operator.Minimum:
-                        if (results.Count == 0) ClearAndAddToList(totalResultList, totalResultList.Min());
-                        else totalResultList.Add(results.Min());
-                        break;
-                    case Operator.Maximum:
-                        if (results.Count == 0) ClearAndAddToList(totalResultList, totalResultList.Max());
-                        else totalResultList.Add(results.Max());
-                        break;
-                    case Operator.GreaterThan:
-                        if(results.Count == 0)
-                        {
-                            if (totalResultList.Count != 2) throw new Exception("Too many items in the resultlist");
-                            ClearAndAddToList(totalResultList, totalResultList[0] > totalResultList[1] ? 1 : 0);
-                        }
-                        else
-                        {
-                            if (results.Count != 2) throw new Exception("Too many items in the resultlist");
-                            totalResultList.Add(results[0] > results[1] ? 1 : 0);
-                        }
-                        break;
-                    case Operator.LessThan:
-                        if (results.Count == 0)
-                        {
-                            if (totalResultList.Count != 2) throw new Exception("Too many items in the resultlist");
-                            ClearAndAddToList(totalResultList, totalResultList[0] < totalResultList[1] ? 1 : 0);
-                        }
-                        else
-                        {
-                            if (results.Count != 2) throw new Exception("Too many items in the resultlist");
-                            totalResultList.Add(results[0] < results[1] ? 1 : 0);
-                        }
-                        break;
-                    case Operator.EqualTo:
-                        if (results.Count == 0)
-                        {
-                            if (totalResultList.Count != 2) throw new Exception("Too many items in the resultlist");
-                            ClearAndAddToList(totalResultList, totalResultList[0] == totalResultList[1] ? 1 : 0);
-                        }
-                        else
-                        {
-                            if (results.Count != 2) throw new Exception("Too many items in the resultlist");
-                            totalResultList.Add(results[0] == results[1] ? 1 : 0);
-                        }
-                        break;
-                }
-            }
+            //foreach (var (op, results) in resultList)
+            //{
+            //    switch (op)
+            //    {
+            //        case Operator.Sum:
+            //            if(results.Count == 0) ClearAndAddToList(totalResultList, totalResultList.Sum());
+            //            else totalResultList.Add(results.Sum());
+            //            break;
+            //        case Operator.Product:
+            //            if (results.Count == 0) ClearAndAddToList(totalResultList, totalResultList.Aggregate(1L, (a, b) => a * b));
+            //            else totalResultList.Add(results.Aggregate(1L, (a, b) => a * b));
+            //            break;
+            //        case Operator.Minimum:
+            //            if (results.Count == 0) ClearAndAddToList(totalResultList, totalResultList.Min());
+            //            else totalResultList.Add(results.Min());
+            //            break;
+            //        case Operator.Maximum:
+            //            if (results.Count == 0) ClearAndAddToList(totalResultList, totalResultList.Max());
+            //            else totalResultList.Add(results.Max());
+            //            break;
+            //        case Operator.GreaterThan:
+            //            if(results.Count == 0)
+            //            {
+            //                if (totalResultList.Count != 2) throw new Exception("Too many items in the resultlist");
+            //                ClearAndAddToList(totalResultList, totalResultList[0] > totalResultList[1] ? 1 : 0);
+            //            }
+            //            else
+            //            {
+            //                if (results.Count != 2) throw new Exception("Too many items in the resultlist");
+            //                totalResultList.Add(results[0] > results[1] ? 1 : 0);
+            //            }
+            //            break;
+            //        case Operator.LessThan:
+            //            if (results.Count == 0)
+            //            {
+            //                if (totalResultList.Count != 2) throw new Exception("Too many items in the resultlist");
+            //                ClearAndAddToList(totalResultList, totalResultList[0] < totalResultList[1] ? 1 : 0);
+            //            }
+            //            else
+            //            {
+            //                if (results.Count != 2) throw new Exception("Too many items in the resultlist");
+            //                totalResultList.Add(results[0] < results[1] ? 1 : 0);
+            //            }
+            //            break;
+            //        case Operator.EqualTo:
+            //            if (results.Count == 0)
+            //            {
+            //                if (totalResultList.Count != 2) throw new Exception("Too many items in the resultlist");
+            //                ClearAndAddToList(totalResultList, totalResultList[0] == totalResultList[1] ? 1 : 0);
+            //            }
+            //            else
+            //            {
+            //                if (results.Count != 2) throw new Exception("Too many items in the resultlist");
+            //                totalResultList.Add(results[0] == results[1] ? 1 : 0);
+            //            }
+            //            break;
+            //    }
+            //}
 
             return totalResultList.First();
         }
@@ -110,11 +114,118 @@ namespace AdventOfCode
             list.Add(toAdd);
         }
 
-        private void ParsePackage(string package, Operator currentOperator, List<(Operator op, List<long> values)> resultList)
+
+
+        private (int afterProcessingIndex, long resultValue) ParsePackageV2(string package)
+        {
+            //if(package.Length < MinimumPackageLength)
+            //{
+            //    return 0;
+            //}
+
+            var @operator = GetOperatorForTypeId(GetTypeIdFromPackage(package));
+
+
+            //if (@operator == Operator.Literal)
+            //{
+            //    var result = ProcessLiteralPackage(package);
+            //    package = package[result.afterProcessingIndex..];
+            //}
+
+            var subPackageResults = new List<long>();
+            var currentIndex = 0;
+
+            var lengthTypeId = package[AfterHeaderIndex];
+            if (lengthTypeId == '0')
+            {
+                var lengthOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, GroupSizeLengthOfSubPackages));
+                var subPackage = package.Substring(GroupSizeLengthOfSubPackages + AfterHeaderIndex + 1, (int)lengthOfSubPackages);
+
+                while(currentIndex < subPackage.Length)
+                {
+                    if(IsNextSubPackageLiteral(subPackage))
+                    {
+                        var (afterProcessIndex, number) = ProcessLiteralPackage(subPackage[currentIndex..]);
+                        currentIndex += afterProcessIndex;
+                        subPackageResults.Add(number);
+                    }
+                    else
+                    {
+                        var subPackageResult = ParsePackageV2(subPackage);
+                        currentIndex += subPackageResult.afterProcessingIndex;
+                        subPackageResults.Add(subPackageResult.resultValue);
+                    }
+                }
+            }
+            else
+            {
+                var amountOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, GroupSizeAmountOfSubPackages));
+
+                //var subPackageResultList = new List<long>();
+
+                ////var subPackageResultList = new List<(Operator op, List<long> results)>();
+                //ParsePackage(package[(GroupSizeAmountOfSubPackages + AfterHeaderIndex + 1)..], currentOperator, subPackageResultList);
+                //// Get answer for subpackage here
+                //// Call ParsePackage again for rest of subpackage
+
+            }
+
+
+
+            return (currentIndex, Solve(@operator, subPackageResults));
+        }
+
+        private (int afterProcessingIndex, List<long> results) GetAllLiteralValues(string package)
+        {
+            var results = new List<long>();
+
+            var currentIndex = 0;
+            while((package.Length - currentIndex >= MinimumPackageLength) && IsNextSubPackageLiteral(package[currentIndex..]))
+            {
+                var hasMoreBitStrings = true;
+                currentIndex += AfterHeaderIndex;
+                var literalNumberResult = new StringBuilder();
+                while (hasMoreBitStrings)
+                {
+                    var currentBitString = package.Substring(currentIndex, GroupSizeLiteralValue);
+                    if (currentBitString[0] == '0')
+                    {
+                        hasMoreBitStrings = false;
+                    }
+
+                    literalNumberResult.Append(currentBitString[1..]);
+                    currentIndex += GroupSizeLiteralValue;
+                }
+
+                results.Add(ConvertToLong(literalNumberResult.ToString()));
+            }
+
+            return (currentIndex, results);
+        }
+
+        private long GetTypeIdFromPackage(string package) => ConvertToLong(package.Substring(HeaderSize, HeaderSize));
+
+        private bool IsNextSubPackageLiteral(string subPackage) => GetOperatorForTypeId(GetTypeIdFromPackage(subPackage)) == Operator.Literal;
+
+        private Operator GetOperatorForTypeId(long typeId) => typeId switch
+        {
+            TypeIdSum => Operator.Sum,
+            TypeIdProduct => Operator.Product,
+            TypeIdMinimum => Operator.Minimum,
+            TypeIdMaximum => Operator.Maximum,
+            TypeIdLiteralValue => Operator.Literal,
+            TypeIdGreaterThan => Operator.GreaterThan,
+            TypeIdLessThan => Operator.LessThan,
+            TypeIdEqualTo => Operator.EqualTo,
+            _ => throw new Exception("Unexpected TypeID: " + typeId),
+        };
+
+
+        private long ParsePackage(string package, Operator currentOperator, List<long> resultList)
         {
             if(package.Length < MinimumPackageLength)
             {
-                return;
+                return 0;
             }
 
             var typeId = ConvertToLong(package.Substring(HeaderSize, HeaderSize));
@@ -122,14 +233,10 @@ namespace AdventOfCode
             {
                 var (afterProcessingIndex, processResult) = ProcessLiteralPackage(package);
 
-                var lastResult = resultList.Last();
-                if(lastResult.op == currentOperator)
-                {
-                    lastResult.values.Add(processResult);
-                }
+                resultList.Add(processResult);
 
                 ParsePackage(package[afterProcessingIndex..], currentOperator, resultList);
-                return;
+                return 0;
             }
 
             switch(typeId)
@@ -156,20 +263,58 @@ namespace AdventOfCode
                     currentOperator = Operator.EqualTo;
                     break;
             }
-            resultList.Add((currentOperator, new List<long>()));
 
             var lengthTypeId = package[AfterHeaderIndex];
             if (lengthTypeId == '0')
             {
                 var lengthOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, GroupSizeLengthOfSubPackages));
-                ParsePackage(package[(GroupSizeLengthOfSubPackages + AfterHeaderIndex + 1)..], currentOperator, resultList);
+
+
+
+                var subPackageResultList = new List<long>();
+
+                var processedLength = 0;
+                while(processedLength < lengthOfSubPackages)
+                {
+                    var result = ParsePackage(package.Substring(GroupSizeLengthOfSubPackages + AfterHeaderIndex + 1, (int)lengthOfSubPackages), currentOperator, subPackageResultList);
+
+                }
+                var afterProcessSubPackageIndex = 0;
+
+
+                //var subPackageResultList = new List<(Operator op, List<long> results)>();
+                // Get answer for subpackage here
+                var answer = Solve(currentOperator, subPackageResultList);
+                // Call ParsePackage again for rest of subpackage
+
             }
             else
             {
                 var amountOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, GroupSizeAmountOfSubPackages));
-                ParsePackage(package[(GroupSizeAmountOfSubPackages + AfterHeaderIndex + 1)..], currentOperator, resultList);
+
+                var subPackageResultList = new List<long>();
+
+                //var subPackageResultList = new List<(Operator op, List<long> results)>();
+                ParsePackage(package[(GroupSizeAmountOfSubPackages + AfterHeaderIndex + 1)..], currentOperator, subPackageResultList);
+                // Get answer for subpackage here
+                // Call ParsePackage again for rest of subpackage
+
             }
+
+            return 0;
         }
+
+        private static long Solve(Operator op, List<long> resultList) => op switch
+        {
+            Operator.Sum => resultList.Sum(),
+            Operator.Product => resultList.Aggregate(1L, (a, b) => a * b),
+            Operator.Minimum => resultList.Min(),
+            Operator.Maximum => resultList.Max(),
+            Operator.GreaterThan => resultList[0] > resultList[1] ? 1 : 0,
+            Operator.LessThan => resultList[0] < resultList[1] ? 1 : 0,
+            Operator.EqualTo => resultList[0] == resultList[1] ? 1 : 0,
+            _ => throw new Exception("Unexpected operator: " + op),
+        };
 
         public long ParsePackageForVersionNumbers(string package, long totalVersionNumber)
         {
@@ -241,6 +386,7 @@ namespace AdventOfCode
             Product,
             Minimum,
             Maximum,
+            Literal,
             GreaterThan,
             LessThan,
             EqualTo
