@@ -21,109 +21,37 @@ namespace AdventOfCode
         private const int TypeIdEqualTo = 7;
 
         private const int GroupSizeLiteralValue = 5;
-        private const int GroupSizeLengthOfSubPackages = 15;
-        private const int GroupSizeAmountOfSubPackages = 11;
+        private const int HeaderSizeLengthOfSubPackages = 15;
+        private const int HeaderSizeAmountOfSubPackages = 11;
 
         private readonly string _input;
 
         public Day_16()
         {
             _input = File.ReadAllText(InputFilePath);
-            var x = ParsePackageV2(ConvertToBitString(_input));
-            Console.WriteLine("Result: " + x.resultValue);
+            //var x = ParsePackageAndCalculateResult(ConvertToBitString(_input));
+            //Console.WriteLine("Result: " + x.resultValue);
         }
 
         public override ValueTask<string> Solve_1() => new(ParsePackageForVersionNumbers(ConvertToBitString(_input), 0).ToString());
 
-        public override ValueTask<string> Solve_2() => new(ParsePackageAndCalculateResult(ConvertToBitString(_input)).ToString());
-
-        public long ParsePackageAndCalculateResult(string package)
-        {
-            var subPackageResultList = new List<long>();
-
-            //var subPackageResultList = new List<(Operator op, List<long> results)>();
-            var zz = ParsePackage(package, Operator.None, subPackageResultList);
-            //resultList.Reverse();
-
-            var totalResultList = new List<long>();
-            //foreach (var (op, results) in resultList)
-            //{
-            //    switch (op)
-            //    {
-            //        case Operator.Sum:
-            //            if(results.Count == 0) ClearAndAddToList(totalResultList, totalResultList.Sum());
-            //            else totalResultList.Add(results.Sum());
-            //            break;
-            //        case Operator.Product:
-            //            if (results.Count == 0) ClearAndAddToList(totalResultList, totalResultList.Aggregate(1L, (a, b) => a * b));
-            //            else totalResultList.Add(results.Aggregate(1L, (a, b) => a * b));
-            //            break;
-            //        case Operator.Minimum:
-            //            if (results.Count == 0) ClearAndAddToList(totalResultList, totalResultList.Min());
-            //            else totalResultList.Add(results.Min());
-            //            break;
-            //        case Operator.Maximum:
-            //            if (results.Count == 0) ClearAndAddToList(totalResultList, totalResultList.Max());
-            //            else totalResultList.Add(results.Max());
-            //            break;
-            //        case Operator.GreaterThan:
-            //            if(results.Count == 0)
-            //            {
-            //                if (totalResultList.Count != 2) throw new Exception("Too many items in the resultlist");
-            //                ClearAndAddToList(totalResultList, totalResultList[0] > totalResultList[1] ? 1 : 0);
-            //            }
-            //            else
-            //            {
-            //                if (results.Count != 2) throw new Exception("Too many items in the resultlist");
-            //                totalResultList.Add(results[0] > results[1] ? 1 : 0);
-            //            }
-            //            break;
-            //        case Operator.LessThan:
-            //            if (results.Count == 0)
-            //            {
-            //                if (totalResultList.Count != 2) throw new Exception("Too many items in the resultlist");
-            //                ClearAndAddToList(totalResultList, totalResultList[0] < totalResultList[1] ? 1 : 0);
-            //            }
-            //            else
-            //            {
-            //                if (results.Count != 2) throw new Exception("Too many items in the resultlist");
-            //                totalResultList.Add(results[0] < results[1] ? 1 : 0);
-            //            }
-            //            break;
-            //        case Operator.EqualTo:
-            //            if (results.Count == 0)
-            //            {
-            //                if (totalResultList.Count != 2) throw new Exception("Too many items in the resultlist");
-            //                ClearAndAddToList(totalResultList, totalResultList[0] == totalResultList[1] ? 1 : 0);
-            //            }
-            //            else
-            //            {
-            //                if (results.Count != 2) throw new Exception("Too many items in the resultlist");
-            //                totalResultList.Add(results[0] == results[1] ? 1 : 0);
-            //            }
-            //            break;
-            //    }
-            //}
-
-            return totalResultList.First();
-        }
-
-        private void ClearAndAddToList(List<long> list, long toAdd)
-        {
-            list.Clear();
-            list.Add(toAdd);
-        }
+        public override ValueTask<string> Solve_2() => new(ParsePackageAndCalculateResult(ConvertToBitString(_input), 0).ToString());
 
 
 
-        private (int afterProcessingIndex, long resultValue) ParsePackageV2(string package)
+        public (int afterProcessingIndex, long resultValue) ParsePackageAndCalculateResult(string package, int currentIndex)
         {
             //if(package.Length < MinimumPackageLength)
             //{
             //    return 0;
-            //}
+            if (!HasPossibleSubPackageLeft(package, currentIndex))
+            {
+                return (0, 0);
+                //return (currentIndex, Solve(@operator, subPackageResults));
+            }
 
-            var @operator = GetOperatorForTypeId(GetTypeIdFromPackage(package));
+
+            var @operator = GetOperatorForTypeId(GetTypeIdFromPackage(package[currentIndex..]));
 
 
             //if (@operator == Operator.Literal)
@@ -133,34 +61,60 @@ namespace AdventOfCode
             //}
 
             var subPackageResults = new List<long>();
-            var currentIndex = 0;
 
-            var lengthTypeId = package[AfterHeaderIndex];
+         
+
+            var lengthTypeId = package[currentIndex + AfterHeaderIndex];
             if (lengthTypeId == '0')
             {
-                var lengthOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, GroupSizeLengthOfSubPackages));
-                var subPackage = package.Substring(GroupSizeLengthOfSubPackages + AfterHeaderIndex + 1, (int)lengthOfSubPackages);
+                var lengthOfSubPackages = ConvertToInt(package.Substring(currentIndex + AfterHeaderIndex + 1, HeaderSizeLengthOfSubPackages));
 
-                while(currentIndex < subPackage.Length)
+                var packageHeaderLength = HeaderSizeLengthOfSubPackages + AfterHeaderIndex + 1;
+                currentIndex += packageHeaderLength;
+
+                var subPackageCounter = 0;
+                while (subPackageCounter < lengthOfSubPackages)
                 {
-                    if(IsNextSubPackageLiteral(subPackage))
+                    if (IsNextSubPackageLiteral(package[currentIndex..]))
                     {
-                        var (afterProcessIndex, number) = ProcessLiteralPackage(subPackage[currentIndex..]);
-                        currentIndex += afterProcessIndex;
+                        var (afterProcessingIndex, number) = ProcessLiteralPackage(package, currentIndex);
+                        subPackageCounter += (afterProcessingIndex - currentIndex);
+                        currentIndex = afterProcessingIndex;
+                        //subPackageCounter += afterProcessIndex;
                         subPackageResults.Add(number);
                     }
                     else
                     {
-                        var subPackageResult = ParsePackageV2(subPackage);
-                        currentIndex += subPackageResult.afterProcessingIndex;
-                        subPackageResults.Add(subPackageResult.resultValue);
+                        var (afterProcessingIndex, resultValue) = ParsePackageAndCalculateResult(package, currentIndex);
+                        subPackageCounter += (afterProcessingIndex - currentIndex);
+                        currentIndex = afterProcessingIndex;
+                        //subPackageCounter += packageHeaderLength + afterProcessingIndex;
+                        subPackageResults.Add(resultValue);
                     }
                 }
             }
             else
             {
-                var amountOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, GroupSizeAmountOfSubPackages));
+                var amountOfSubPackages = ConvertToInt(package.Substring(currentIndex + AfterHeaderIndex + 1, HeaderSizeAmountOfSubPackages));
 
+                var packageHeaderLength = HeaderSizeAmountOfSubPackages + AfterHeaderIndex + 1;
+                currentIndex += packageHeaderLength;
+
+                foreach (var _ in Enumerable.Range(0, amountOfSubPackages))
+                {
+                    if (IsNextSubPackageLiteral(package[currentIndex..]))
+                    {
+                        var (afterProcessIndex, number) = ProcessLiteralPackage(package, currentIndex);
+                        currentIndex = afterProcessIndex;
+                        subPackageResults.Add(number);
+                    }
+                    else
+                    {
+                        var (afterProcessingIndex, resultValue) = ParsePackageAndCalculateResult(package, currentIndex);
+                        currentIndex = afterProcessingIndex;
+                        subPackageResults.Add(resultValue);
+                    }
+                }
                 //var subPackageResultList = new List<long>();
 
                 ////var subPackageResultList = new List<(Operator op, List<long> results)>();
@@ -174,6 +128,8 @@ namespace AdventOfCode
 
             return (currentIndex, Solve(@operator, subPackageResults));
         }
+
+        private static bool HasPossibleSubPackageLeft(string package, int index) => package.Length > index && (package.Length - index) > MinimumPackageLength;
 
         private (int afterProcessingIndex, List<long> results) GetAllLiteralValues(string package)
         {
@@ -267,7 +223,7 @@ namespace AdventOfCode
             var lengthTypeId = package[AfterHeaderIndex];
             if (lengthTypeId == '0')
             {
-                var lengthOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, GroupSizeLengthOfSubPackages));
+                var lengthOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, HeaderSizeLengthOfSubPackages));
 
 
 
@@ -276,7 +232,7 @@ namespace AdventOfCode
                 var processedLength = 0;
                 while(processedLength < lengthOfSubPackages)
                 {
-                    var result = ParsePackage(package.Substring(GroupSizeLengthOfSubPackages + AfterHeaderIndex + 1, (int)lengthOfSubPackages), currentOperator, subPackageResultList);
+                    var result = ParsePackage(package.Substring(HeaderSizeLengthOfSubPackages + AfterHeaderIndex + 1, (int)lengthOfSubPackages), currentOperator, subPackageResultList);
 
                 }
                 var afterProcessSubPackageIndex = 0;
@@ -290,12 +246,12 @@ namespace AdventOfCode
             }
             else
             {
-                var amountOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, GroupSizeAmountOfSubPackages));
+                var amountOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, HeaderSizeAmountOfSubPackages));
 
                 var subPackageResultList = new List<long>();
 
                 //var subPackageResultList = new List<(Operator op, List<long> results)>();
-                ParsePackage(package[(GroupSizeAmountOfSubPackages + AfterHeaderIndex + 1)..], currentOperator, subPackageResultList);
+                ParsePackage(package[(HeaderSizeAmountOfSubPackages + AfterHeaderIndex + 1)..], currentOperator, subPackageResultList);
                 // Get answer for subpackage here
                 // Call ParsePackage again for rest of subpackage
 
@@ -336,13 +292,13 @@ namespace AdventOfCode
                 var lengthTypeId = package[AfterHeaderIndex];
                 if(lengthTypeId == '0')
                 {
-                    var lengthOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, GroupSizeLengthOfSubPackages));
-                    return ParsePackageForVersionNumbers(package[(GroupSizeLengthOfSubPackages + AfterHeaderIndex + 1)..], totalVersionNumber);
+                    var lengthOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, HeaderSizeLengthOfSubPackages));
+                    return ParsePackageForVersionNumbers(package[(HeaderSizeLengthOfSubPackages + AfterHeaderIndex + 1)..], totalVersionNumber);
                 }
                 else
                 {
-                    var amountOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, GroupSizeAmountOfSubPackages));
-                    return ParsePackageForVersionNumbers(package[(GroupSizeAmountOfSubPackages + AfterHeaderIndex + 1)..], totalVersionNumber);
+                    var amountOfSubPackages = ConvertToLong(package.Substring(AfterHeaderIndex + 1, HeaderSizeAmountOfSubPackages));
+                    return ParsePackageForVersionNumbers(package[(HeaderSizeAmountOfSubPackages + AfterHeaderIndex + 1)..], totalVersionNumber);
                 }
             }
         }
@@ -367,7 +323,28 @@ namespace AdventOfCode
             return (currentIndex, ConvertToLong(literalNumberResult.ToString()));
         }
 
+        private (int afterProcessingIndex, long number) ProcessLiteralPackage(string package, int currentIndex)
+        {
+            var hasMoreBitStrings = true;
+            currentIndex += AfterHeaderIndex;
+            var literalNumberResult = new StringBuilder();
+            while (hasMoreBitStrings)
+            {
+                var currentBitString = package.Substring(currentIndex, GroupSizeLiteralValue);
+                if (currentBitString[0] == '0')
+                {
+                    hasMoreBitStrings = false;
+                }
+
+                literalNumberResult.Append(currentBitString.Substring(1));
+                currentIndex += GroupSizeLiteralValue;
+            }
+
+            return (currentIndex, ConvertToLong(literalNumberResult.ToString()));
+        }
+
         private long ConvertToLong(string bitString) => Convert.ToInt64(bitString, 2);
+        private int ConvertToInt(string bitString) => Convert.ToInt32(bitString, 2);
 
         public string ConvertToBitString(string hexValue)
         {

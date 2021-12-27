@@ -64,49 +64,52 @@ namespace AdventOfCode.Tests
         [TestMethod]
         public void Day16_ParsePackageAndCalculateResult_Sum_Success()
         {
-            Assert.AreEqual(3, _day16.ParsePackageAndCalculateResult(_day16.ConvertToBitString("C200B40A82")));
+            Assert.AreEqual(3, PerformParsePackageAndCalculateResult("C200B40A82"));
         }
 
         [TestMethod]
         public void Day16_ParsePackageAndCalculateResult_Product_Success()
         {
-            Assert.AreEqual(54, _day16.ParsePackageAndCalculateResult(_day16.ConvertToBitString("04005AC33890")));
+            Assert.AreEqual(54, PerformParsePackageAndCalculateResult("04005AC33890"));
         }
 
         [TestMethod]
         public void Day16_ParsePackageAndCalculateResult_Minimum_Success()
         {
-            Assert.AreEqual(7, _day16.ParsePackageAndCalculateResult(_day16.ConvertToBitString("880086C3E88112")));
+            Assert.AreEqual(7, PerformParsePackageAndCalculateResult("880086C3E88112"));
         }
 
         [TestMethod]
         public void Day16_ParsePackageAndCalculateResult_Maximum_Success()
         {
-            Assert.AreEqual(9, _day16.ParsePackageAndCalculateResult(_day16.ConvertToBitString("CE00C43D881120")));
+            Assert.AreEqual(9, PerformParsePackageAndCalculateResult("CE00C43D881120"));
         }
 
         [TestMethod]
         public void Day16_ParsePackageAndCalculateResult_GreaterThan_Success()
         {
-            Assert.AreEqual(1, _day16.ParsePackageAndCalculateResult(_day16.ConvertToBitString("D8005AC2A8F0")));
+            Assert.AreEqual(1, PerformParsePackageAndCalculateResult("D8005AC2A8F0"));
         }
 
         [TestMethod]
         public void Day16_ParsePackageAndCalculateResult_LessThan_Success()
         {
-            Assert.AreEqual(0, _day16.ParsePackageAndCalculateResult(_day16.ConvertToBitString("F600BC2D8F")));
+            Assert.AreEqual(0, PerformParsePackageAndCalculateResult("F600BC2D8F"));
         }
 
         [TestMethod]
         public void Day16_ParsePackageAndCalculateResult_EqualTo_Success()
         {
-            Assert.AreEqual(0, _day16.ParsePackageAndCalculateResult(_day16.ConvertToBitString("9C005AC2F8F0")));
+            Assert.AreEqual(0, PerformParsePackageAndCalculateResult("9C005AC2F8F0"));
         }
 
         [TestMethod]
         public void Day16_ParsePackageAndCalculateResult_Sum_Product_EqualTo_Success()
         {
-            Assert.AreEqual(1, _day16.ParsePackageAndCalculateResult(_day16.ConvertToBitString("9C0141080250320F1802104A08")));
+            Assert.AreEqual(1, PerformParsePackageAndCalculateResult("9C0141080250320F1802104A08"));
         }
+
+        private long PerformParsePackageAndCalculateResult(string hexString) =>
+            _day16.ParsePackageAndCalculateResult(_day16.ConvertToBitString(hexString), 0).resultValue;
     }
 }
