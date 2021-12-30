@@ -5,13 +5,7 @@ namespace AdventOfCode.Tests
     [TestClass]
     public class Day_16_Tests
     {
-        private Day_16 _day16;
-
-        [TestInitialize]
-        public void Initialize()
-        {
-            _day16 = new Day_16();
-        }
+        private readonly Day_16 _day16 = new();
 
         [TestMethod]
         public void Day16_ConvertToBitString_Success()

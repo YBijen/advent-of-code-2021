@@ -5,8 +5,6 @@ namespace AdventOfCode
     public class Day_15 : BaseDay
     {
         private readonly Dictionary<(int x, int y), int> _cave = new();
-        private readonly (int x, int y) _finalPosition;
-        private const int MaxRiskLevel = 9;
 
         public Day_15()
         {
@@ -18,15 +16,13 @@ namespace AdventOfCode
                     _cave.Add((x, y), int.Parse(inputLines[y][x].ToString()));
                 }
             }
-
-            _finalPosition = (inputLines[0].Length - 1, inputLines.Length - 1);
         }
 
         public override ValueTask<string> Solve_1() => new(TraverseAllPaths(_cave).ToString());
 
         public override ValueTask<string> Solve_2() => new(TraverseAllPaths(CreateFullCaveV2(_cave, 5), 5).ToString());
 
-        private Dictionary<(int x, int y), int> CreateFullCaveV2(Dictionary<(int x, int y), int> baseCave, int multiplier)
+        private static Dictionary<(int x, int y), int> CreateFullCaveV2(Dictionary<(int x, int y), int> baseCave, int multiplier)
         {
             var fullCave = new Dictionary<(int x, int y), int>(baseCave);
             var baseCaveMaxSize = baseCave.Max(oc => oc.Key.x) + 1;
@@ -65,7 +61,7 @@ namespace AdventOfCode
             return fullCave;
         }
 
-        private void PrintCave(Dictionary<(int x, int y), int> cave, int multiplier)
+        private static void PrintCave(Dictionary<(int x, int y), int> cave)
         {
             var maxSize = cave.Max(c => c.Key.y) + 1;
             for (var y = 0; y < maxSize; y++)
@@ -78,7 +74,7 @@ namespace AdventOfCode
             }
         }
 
-        private int TraverseAllPaths(Dictionary<(int x, int y), int> cave, int traverseAmountOfTimes = 1)
+        private static int TraverseAllPaths(Dictionary<(int x, int y), int> cave, int traverseAmountOfTimes = 1)
         {
             var costMapping = new Dictionary<(int x, int y), int>
             {
@@ -99,7 +95,7 @@ namespace AdventOfCode
             return costMapping[finalPosition];
         }
 
-        private void CheckAdjacentPositions(Dictionary<(int x, int y), int> cave, (int x, int y) currentPosition, Dictionary<(int x, int y), int> costsToPosition)
+        private static void CheckAdjacentPositions(Dictionary<(int x, int y), int> cave, (int x, int y) currentPosition, Dictionary<(int x, int y), int> costsToPosition)
         {
             foreach (var adjacentPosition in GetAdjacentPositions(currentPosition.x, currentPosition.y))
             {
