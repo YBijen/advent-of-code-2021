@@ -13,14 +13,49 @@ namespace AdventOfCode
             _input = File.ReadAllLines(InputFilePath).ToList();
         }
 
-        public override ValueTask<string> Solve_1() => new(CalculcateTotalMagnitude(AddAllSnailfishes()).ToString());
+        public override ValueTask<string> Solve_1() => new(CalculcateTotalMagnitude(AddAllSnailfishes(_input)).ToString());
 
-        public override ValueTask<string> Solve_2() => new("Answer for Part 2 will be here...");
+        public override ValueTask<string> Solve_2() => new(CalculcateAllSingleSnailfishes(_input).ToString());
 
-        private Pair AddAllSnailfishes()
+        private long CalculcateAllSingleSnailfishes(List<string> snailfishes)
         {
-            var (currentSnailfish, _) = ParseSnailfish(_input[0]);
-            foreach(var snailfishString in _input.Skip(1))
+            var snailfishMagnitudes = new Dictionary<string, long>();
+            foreach (var snailfishString in _input)
+            {
+                var (parsedSnailfish, _) = ParseSnailfish(snailfishString);
+                snailfishMagnitudes.Add(snailfishString, CalculcateTotalMagnitude(parsedSnailfish));
+            }
+            var largestSnailfishes = snailfishMagnitudes.OrderByDescending(x => x.Value).ToList();
+
+            // Take a subset of the above for perfomance
+            snailfishes = snailfishes.Take(largestSnailfishes.Count / 2).ToList();
+
+            var highestValue = 0L;
+
+            for(var i = 0; i < snailfishes.Count; i++)
+            {
+                for(var j = 0; j < snailfishes.Count; j++)
+                {
+                    if(i == j)
+                    {
+                        continue;
+                    }
+
+                    var result = CalculcateTotalMagnitude(AddAllSnailfishes(new List<string> { snailfishes[i], snailfishes[j] }));
+                    if(result > highestValue)
+                    {
+                        highestValue = result;
+                    }
+                }
+            }
+
+            return highestValue;
+        }
+
+        private static Pair AddAllSnailfishes(List<string> snailfishes)
+        {
+            var (currentSnailfish, _) = ParseSnailfish(snailfishes[0]);
+            foreach(var snailfishString in snailfishes.Skip(1))
             {
                 var (parsedSnailfish, _) = ParseSnailfish(snailfishString);
                 currentSnailfish = new Pair(currentSnailfish, parsedSnailfish);
